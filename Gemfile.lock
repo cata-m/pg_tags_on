@@ -77,7 +77,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 2.0)
   faker (~> 2.10)
   pg (~> 1.2)
   pg_tags_on!

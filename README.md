@@ -140,7 +140,7 @@ Entity.tags.taggings
   => [#<PgTagsOn::Tag name: "alpha", entity_id: 1>, #<PgTagsOn::Tag name: "beta", entity_id: 1>, #<PgTagsOn::Tag name: "alpha", entity_id: 2>, ... ]
 ```
 
-Create, update and delete methods are using, for performance reasons, Postgresql functions to manipulate the arrays, so ActiveRecord models are not instantiated. A frequent problem is to ensure uniqueness of the tags for a record, and this can be achieved at the database level with a before create/update row trigger.
+Create, update and delete methods are using, for performance reasons, Postgresql functions to manipulate the arrays, so ActiveRecord models are not instantiated. A frequent problem is to ensure uniqueness of the tags for a record, and this can be achieved at the database level by creating a before create/update row trigger.
 
 ```ruby
 # create
