@@ -1,0 +1,9 @@
+AllCops:
+  Exclude:
+    - '**/benchmark.rb'
+Layout/LineLength:
+  Max: 120
+Metrics/BlockLength:
+  Max: 120
+Metrics/MethodLength:
+  Max: 20

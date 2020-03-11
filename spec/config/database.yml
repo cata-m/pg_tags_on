@@ -1,0 +1,6 @@
+adapter: postgresql
+host: <%= ENV.fetch("PG_HOST") { "localhost" } %>
+port: <%= ENV.fetch("PG_PORT") { 5432 } %>
+username: <%= ENV.fetch("PG_USER") { raise "PG_USER env. not set" } %>
+password: <%= ENV.fetch("PG_PSWD") { raise "PG_PSWD env. not set" } %>
+database: <%= ENV.fetch("PG_TAGS_ON_DB") { raise "PG_TAGS_ON_DB env. not set" } %>
