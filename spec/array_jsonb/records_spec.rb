@@ -1,17 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe 'ArrayJsonb::Records' do
-  before(:all) do
-    @column = :tags_jsonb # defined as instance var as it is used in before_all callback
-  end
-
-  let(:column) { @column }
+  let(:column) { :tags_jsonb }
   let(:ref) { %("#{Entity.table_name}"."#{column}") }
-  let(:relation) { Entity.send(column) }
 
   context 'objects have only one key' do
     before(:all) do
-      Entity.pg_tags_on @column, key: :name
+      Entity.pg_tags_on :tags_jsonb, key: :name
       truncate && Factory.array_jsonb
     end
 
@@ -56,7 +51,7 @@ RSpec.describe 'ArrayJsonb::Records' do
 
   context 'objects have multiple keys' do
     before(:all) do
-      Entity.pg_tags_on @column, key: :name, has_attributes: true
+      Entity.pg_tags_on :tags_jsonb, key: :name, has_attributes: true
       truncate && Factory.array_jsonb_with_attrs
     end
 

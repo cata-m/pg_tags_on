@@ -1,17 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe 'ArrayJsonb::TagOps' do
-  before(:all) do
-    @column = :tags_jsonb
-  end
-
-  let(:column) { @column }
-  let(:ref) { %("#{Entity.table_name}"."#{column}") }
+  let(:column) { :tags_jsonb }
   let(:relation) { Entity.send(column) }
 
   context 'objects has only one key' do
     before(:all) do
-      Entity.pg_tags_on @column, key: :name
+      Entity.pg_tags_on :tags_jsonb, key: :name
       truncate && Factory.array_jsonb
     end
 
@@ -67,7 +62,7 @@ RSpec.describe 'ArrayJsonb::TagOps' do
 
   context 'objects have multiple keys' do
     before(:all) do
-      Entity.pg_tags_on @column, key: :name, has_attributes: true
+      Entity.pg_tags_on :tags_jsonb, key: :name, has_attributes: true
     end
 
     before(:each) do

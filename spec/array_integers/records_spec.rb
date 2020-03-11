@@ -2,14 +2,12 @@
 
 RSpec.describe 'ArrayIntegers::Records' do
   before(:all) do
-    @column = :tags_int # defined as instance var as it is used in before_all callback
-    Entity.pg_tags_on @column
+    Entity.pg_tags_on :tags_int
     truncate && Factory.array_integers
   end
 
-  let(:column) { @column }
+  let(:column) { :tags_int }
   let(:ref) { %("#{Entity.table_name}"."#{column}") }
-  let(:relation) { Entity.send(column) }
 
   it 'find records by tag' do
     rel = Entity.where(column => Tags.one(2))

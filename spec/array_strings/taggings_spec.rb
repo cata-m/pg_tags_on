@@ -2,13 +2,11 @@
 
 RSpec.describe 'ArrayStrings::Taggings' do
   before(:all) do
-    @column = :tags_str # defined as instance var as it is used in before_all callback
-    Entity.pg_tags_on @column
+    Entity.pg_tags_on :tags_str
     truncate && Factory.array_strings
   end
 
-  let(:column) { @column }
-  let(:ref) { %("#{Entity.table_name}"."#{column}") }
+  let(:column) { :tags_str }
   let(:relation) { Entity.send(column) }
 
   it 'find all taggings' do

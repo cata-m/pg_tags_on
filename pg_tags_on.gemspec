@@ -10,7 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Catalin Marinescu']
   spec.email         = ['catalin.marinescu@gmail.com']
   spec.summary       = 'Manage tags stored in Postgresql column.'
-  spec.description   = 'A gem that makes working with tags stored in a Postgresql column easy.Support for array of string, integer and jsonb values.'
+  spec.description   = 'A gem that makes working with tags stored in a Postgresql column easy.
+                        Support for array of string, integer and jsonb values.'
   spec.homepage      = 'http://github.com/cata-m/pg_tags_on'
   spec.license       = 'MIT'
   spec.metadata['homepage_uri'] = spec.homepage

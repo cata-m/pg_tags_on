@@ -2,13 +2,11 @@
 
 RSpec.describe 'ArrayJsonb::Tags' do
   before(:all) do
-    @column = :tags_jsonb
-    Entity.pg_tags_on @column, key: :name
+    Entity.pg_tags_on :tags_jsonb, key: :name
     truncate && Factory.array_jsonb
   end
 
-  let(:column) { @column }
-  let(:ref) { %("#{Entity.table_name}"."#{column}") }
+  let(:column) { :tags_jsonb }
   let(:relation) { Entity.send(column) }
 
   it 'find all tags' do
