@@ -52,13 +52,13 @@ module PgTagsOn
         return true if tag.blank? || new_tag.blank? || tag == new_tag
 
         klass
-          .where(column_name => Tags.one(tag))
+          .where(column_name => PgTagsOn.query_class.one(tag))
           .update_all(column_name => arel_array_replace(arel_column, bind_for(tag), bind_for(new_tag)))
       end
 
       def delete(tag)
         klass
-          .where(column_name => Tags.one(tag))
+          .where(column_name => PgTagsOn.query_class.one(tag))
           .update_all(column_name => arel_array_remove(arel_column, bind_for(tag)))
       end
 
