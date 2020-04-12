@@ -42,27 +42,59 @@ module PgTagsOn
         all.count
       end
 
-      def create(tag)
-        return true if tag.blank?
+      def create(tag, returning: nil)
+        raise 'Tag cannot be blank' if tag.blank?
 
-        klass.update_all(column_name => arel_array_cat(arel_column, bind_for(Array.wrap(tag))))
+        perform_update(klass,
+                       { column_name => arel_array_cat(arel_column, bind_for(Array.wrap(tag))) },
+                       returning: returning)
       end
 
-      def update(tag, new_tag)
-        return true if tag.blank? || new_tag.blank? || tag == new_tag
+      def update(tag, new_tag, returning: nil)
+        raise 'Tag cannot be blank' if tag.blank? || new_tag.blank?
 
-        klass
-          .where(column_name => PgTagsOn.query_class.one(tag))
-          .update_all(column_name => arel_array_replace(arel_column, bind_for(tag), bind_for(new_tag)))
+        rel = klass.where(column_name => PgTagsOn.query_class.one(tag))
+
+        perform_update(rel,
+                       { column_name => arel_array_replace(arel_column, bind_for(tag), bind_for(new_tag)) },
+                       returning: returning)
       end
 
-      def delete(tag)
-        klass
-          .where(column_name => PgTagsOn.query_class.one(tag))
-          .update_all(column_name => arel_array_remove(arel_column, bind_for(tag)))
+      def delete(tag, returning: nil)
+        raise 'Tag cannot be blank' if tag.blank?
+
+        rel = klass.where(column_name => PgTagsOn.query_class.one(tag))
+
+        perform_update(rel, { column_name => arel_array_remove(arel_column, bind_for(tag)) }, returning: returning)
       end
 
       private
+
+      def perform_update(rel, updates, returning: nil)
+        updater = update_manager(rel, updates)
+        sql, binds = klass.connection.send :to_sql_and_binds, updater
+        sql += " RETURNING #{Array.wrap(returning).join(', ')}" if returning.present?
+
+        result = klass.connection.exec_query(sql, 'SQL', binds).rows
+
+        returning ? result : true
+      end
+
+      # Method copied from ActiveRecord as there is no way to inject sql into update manager.
+      def update_manager(rel, updates)
+        raise ArgumentError, 'Empty list of attributes to change' if updates.blank?
+
+        stmt = ::Arel::UpdateManager.new
+        stmt.table(arel_table)
+        stmt.key = klass.arel_attribute(klass.primary_key)
+        stmt.take(rel.arel.limit)
+        stmt.offset(rel.arel.offset)
+        stmt.order(*rel.arel.orders)
+        stmt.wheres = rel.arel.constraints
+        stmt.set rel.send(:_substitute_values, updates)
+
+        stmt
+      end
 
       def array_to_recordset
         unnest

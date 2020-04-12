@@ -17,8 +17,8 @@ Gem::Specification.new do |spec|
 
   spec.metadata = {
     'bug_tracker_uri' => 'https://github.com/cata-m/pg_tags_on/issues',
-    'changelog_uri'   => 'https://github.com/cata-m/pg_tags_on/blob/master/CHANGELOG.md',
-    'homepage_uri'    => spec.homepage,
+    'changelog_uri' => 'https://github.com/cata-m/pg_tags_on/blob/master/CHANGELOG.md',
+    'homepage_uri' => spec.homepage,
     'source_code_uri' => 'https://github.com/cata-m/pg_tags_on'
   }
 

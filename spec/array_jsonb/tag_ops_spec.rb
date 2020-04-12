@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe 'ArrayJsonb::TagOps' do
-  let(:column) { :tags_jsonb }
-  let(:relation) { Entity.send(column) }
-
   context 'objects has only one key' do
     before(:all) do
       Entity.pg_tags_on :tags_jsonb, key: :name
+    end
+
+    before do
       truncate && Factory.array_jsonb
     end
+
+    let(:column) { :tags_jsonb }
+    let(:relation) { Entity.send(column) }
 
     context 'create' do
       it 'create tag' do
@@ -24,6 +27,13 @@ RSpec.describe 'ArrayJsonb::TagOps' do
 
         expect(Entity.find_by_attr('test1').send(column)).not_to include({ 'name' => 'new-tag2' })
         expect(Entity.find_by_attr('test2').send(column)).to include({ 'name' => 'new-tag2' })
+      end
+
+      it 'create tag with returning values' do
+        result = relation.create('abc', returning: column)
+
+        expect(result).to be_a(Array)
+        expect(result.size).to be_eql(3)
       end
     end
 
@@ -41,6 +51,12 @@ RSpec.describe 'ArrayJsonb::TagOps' do
         count = Entity.where(column => Tags.all('updated-c')).count
         expect(count).to be_eql(1)
       end
+
+      it 'update tag with returning values' do
+        result = relation.update('d', 'updated-d', returning: column)
+
+        expect(result).to be_a(Array)
+      end
     end
 
     context 'delete' do
@@ -57,6 +73,13 @@ RSpec.describe 'ArrayJsonb::TagOps' do
         expect(Entity.where(attr: 'test1').send(column).all.pluck(:name)).to include('c')
         expect(Entity.where(attr: 'test2').send(column).all.pluck(:name)).not_to include('c')
       end
+
+      it 'delete tag with returning values' do
+        result = relation.delete('d', returning: column)
+
+        expect(result).to be_a(Array)
+        expect(result[0]).to include('{}')
+      end
     end
   end
 
@@ -68,6 +91,9 @@ RSpec.describe 'ArrayJsonb::TagOps' do
     before(:each) do
       truncate && Factory.array_jsonb_with_attrs
     end
+
+    let(:column) { :tags_jsonb }
+    let(:relation) { Entity.send(column) }
 
     context 'update' do
       it 'update tag' do

@@ -42,7 +42,7 @@ Or install it yourself as:
 ## Usage
 ### ActiveRecord model setup
 
-One or multiple columns from a model can be specified:
+One or multiple columns can be specified:
 
 ```ruby
 class Entity < ActiveRecord::Base
@@ -51,16 +51,7 @@ class Entity < ActiveRecord::Base
 end
 ```
 
-Validations for max. number of tags and max. tag length can be added and errors will be injected into model's ```errors``` object.
-
-
-```ruby
-class Entity < ActiveRecord::Base
-  pg_tags_on :tags, limit: 10, tag_length: 50 # limit to 10 tags and 50 chars. per tag.
-end
-```
-
-For ```jsonb[]``` you'll have to specify the key for the tag value. If you store multiple attributes in the objects then you must set also ```has_attributes: true```.
+For ```jsonb[]``` columns you'll have to specify the key for the tag value. If you store multiple attributes in the objects then you must set also ```has_attributes: true```.
 
 ```ruby
 class Entity < ActiveRecord::Base
@@ -69,8 +60,17 @@ class Entity < ActiveRecord::Base
 end
 ```
 
-### Records Queries
-```pg_tags_on``` registers ```Tags``` class in model's predicate builder, so you can filter the records by tags as you are usually doing in Rails. Class name can be changed if you have conflicts or you don't like it, see the [configuration](#configuration) section.
+##### Validations
+Maximum number of tags and maximum tag length can be validated. Errors will be injected into model's ```errors``` object.
+
+```ruby
+class Entity < ActiveRecord::Base
+  pg_tags_on :tags, limit: 10, tag_length: 50 # limit to 10 tags and 50 chars. per tag.
+end
+```
+
+### Queries
+```pg_tags_on``` registers ```Tags``` class in model's predicate builder, so records can be filtered using ActiveRecord's DSL. Class name can be changed if you have conflicts or you don't like it, see the [configuration](#configuration) section.
 
 * Find records by tag:
 
@@ -81,25 +81,25 @@ Entity.where(tags: Tags.one('alpha'))
 * Find records that have exact same tags as the list, order is not important:
 
 ```ruby
-Entity.where(tags: Tags.eq('alpha', 'beta', 'gamma')) # Array argument is allowed, too
+Entity.where(tags: Tags.eq('alpha', 'beta', 'gamma')) # Array argument is allowed too for every method.
 ```
 
 * Find records that includes all the tags from the list:
 
 ```ruby
-Entity.where(tags: Tags.all('alpha', 'beta', 'gamma')) # Array argument is allowed, too
+Entity.where(tags: Tags.all('alpha', 'beta', 'gamma'))
 ```
 
 * Find records that includes any tag from the list:
 
 ```ruby
-Entity.where(tags: Tags.any('alpha', 'beta', 'gamma')) # Array argument is allowed, too
+Entity.where(tags: Tags.any('alpha', 'beta', 'gamma'))
 ```
 
 * Find records that have all the tags included in the list:
 
 ```ruby
-Entity.where(tags: Tags.in('alpha', 'beta', 'gamma')) # Array argument is allowed, too
+Entity.where(tags: Tags.in('alpha', 'beta', 'gamma'))
 ```
 
 All the above queries supports negation operator. Example:
@@ -140,7 +140,7 @@ Entity.tags.taggings
   => [#<PgTagsOn::Tag name: "alpha", entity_id: 1>, #<PgTagsOn::Tag name: "beta", entity_id: 1>, #<PgTagsOn::Tag name: "alpha", entity_id: 2>, ... ]
 ```
 
-Create, update and delete methods are using, for performance reasons, Postgresql functions to manipulate the arrays, so ActiveRecord models are not instantiated. A frequent problem is to ensure uniqueness of the tags for a record, and this can be achieved at the database level by creating a before create/update row trigger.
+Create, update and delete methods are using, for performance reasons, Postgresql functions to manipulate the arrays, so ActiveRecord models are not instantiated. A frequent problem is to ensure uniqueness of the tags for a record, but this can be achieved at the database level by creating a before create/update row trigger.
 
 ```ruby
 # create
@@ -154,10 +154,16 @@ Entity.where(...).tags.update('alpha', 'a')  # rename tag for filtered records
 # delete
 Entity.tags.delete('alpha')             # delete tag from all records
 Entity.where(...).tags.delete('alpha')  # delete tag from filtered records
+
+# any of these methods accepts :returning option
+Entity.tags.update('alpha', 'a', returning: %w[id tags])
+=> [[1, '{a}'], ...]
 ```
 
+
+
 ### Set record's tags
-By default ```pg_tags_on``` does not add any logic in the way that the tags are set and saved in database. It'll let all the transformations, like lowercase, strip spaces, unique etc..., at the programmer choice.
+By default ```pg_tags_on``` does not add any logic in the way that the tags are set for the model and saved in database. It'll let all the transformations, like lowercase, strip spaces, unique etc..., at the programmer choice. Specific setters can be implemented.
 
 
 ### Configuration
@@ -181,7 +187,7 @@ rake pg_tags_on:benchmark
 1. Fork it ( http://github.com/cata-m/pg_tags_on/fork )
 2. Install gem dependencies: ```bundle install```
 3. Create a new feature or fix branch like: 'feature/new-feature' or 'fix/fix-some-issues'
-4. Make sure all tests pass: ```bundle exec rake spec```
+4. Write your modifications and make sure all tests pass: ```bundle exec rake spec```
 5. Commit your changes: git commit -am 'your changes'
 6. Push to the branch
 7. Create new pull request

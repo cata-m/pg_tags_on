@@ -27,6 +27,13 @@ RSpec.describe 'ArrayIntegers::TagOps' do
       expect(Entity.find_by_attr('test1').send(column)).not_to include(6)
       expect(Entity.find_by_attr('test2').send(column)).to include(6)
     end
+
+    it 'create tag with returning values' do
+      result = relation.create(100, returning: 'tags_int')
+
+      expect(result).to be_a(Array)
+      expect(result.size).to be_eql(3)
+    end
   end
 
   context 'update' do
@@ -38,10 +45,17 @@ RSpec.describe 'ArrayIntegers::TagOps' do
     end
 
     it 'update tag for filtered records' do
-      Entity.where(attr: 'test2').send(column).update(3, 33)
+      Entity.where(attr: 'test2', column => PgTagsOn.query_class.one(3)).send(column).update(3, 33)
 
       count = Entity.where(column => Tags.all(33)).count
       expect(count).to be_eql(1)
+    end
+
+    it 'update tag with returning values' do
+      result = relation.update(1, 11, returning: %w[id tags_int])
+
+      expect(result).to be_a(Array)
+      expect(result[0]).to include('{11,2,3}')
     end
   end
 
@@ -58,6 +72,13 @@ RSpec.describe 'ArrayIntegers::TagOps' do
 
       expect(Entity.find_by_attr('test1').send(column)).to include(3)
       expect(Entity.find_by_attr('test2').send(column)).not_to include(3)
+    end
+
+    it 'delete tag with returning values' do
+      result = relation.delete(1, returning: %w[id tags_int])
+
+      expect(result).to be_a(Array)
+      expect(result[0]).to include('{2,3}')
     end
   end
 end

@@ -27,6 +27,13 @@ RSpec.describe 'ArrayStrings::TagOps' do
       expect(Entity.find_by_attr('test1').send(column)).not_to include('new-tag2')
       expect(Entity.find_by_attr('test2').send(column)).to include('new-tag2')
     end
+
+    it 'create tag with returning values' do
+      result = relation.create('abc', returning: column)
+
+      expect(result).to be_a(Array)
+      expect(result.size).to be_eql(3)
+    end
   end
 
   context 'update' do
@@ -43,6 +50,13 @@ RSpec.describe 'ArrayStrings::TagOps' do
       count = Entity.where(column => Tags.all('updated-c')).count
       expect(count).to be_eql(1)
     end
+
+    it 'update tag with returning values' do
+      result = relation.update('d', 'updated-d', returning: column)
+
+      expect(result).to be_a(Array)
+      expect(result[0]).to include('{updated-d}')
+    end
   end
 
   context 'delete' do
@@ -58,6 +72,13 @@ RSpec.describe 'ArrayStrings::TagOps' do
 
       expect(Entity.find_by_attr('test1').send(column)).to include('c')
       expect(Entity.find_by_attr('test2').send(column)).not_to include('c')
+    end
+
+    it 'update tag with returning values' do
+      result = relation.delete('d', returning: column)
+
+      expect(result).to be_a(Array)
+      expect(result[0]).to be_eql(['{}'])
     end
   end
 end
