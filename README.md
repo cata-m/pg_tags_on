@@ -15,7 +15,7 @@ Note: this gem is in early stage of development.
 - [Installation](#installation)
 - [Usage](#usage)
   - [ActiveRecord model setup](#activerecord-model-setup)
-  - [Records queries](#records-queries)
+  - [Records queries](#queries)
   - [Tags](#tags)
   - [Set record's tags](#set-records-tags)
   - [Configuration](#configuration)
