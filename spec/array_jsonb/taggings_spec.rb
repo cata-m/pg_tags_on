@@ -12,8 +12,8 @@ RSpec.describe 'ArrayJsonb::Taggings' do
   it 'find all taggings' do
     taggings = relation.taggings.order('name')
 
-    expect(taggings.size).to be_eql(6)
-    expect(taggings.map(&:name)).to be_eql(%w[a b b c c d])
+    expect(taggings.size).to be_eql(8)
+    expect(taggings.map(&:name)).to be_eql(%w[a b b c c d e1 e2])
   end
 
   it 'find all taggings for filtered records' do

@@ -1,6 +1,6 @@
 # PgTagsOn
 
-```pg_tags_on``` is a gem that makes working with tags stored in a Postgresql column easy. Supported column types are: ```character varying[]```, ```text[]```, ```integer[]``` and ```jsonb[]```.
+```pg_tags_on``` - keep tags in a column. Supported column types are: ```character varying[]```, ```text[]```, ```integer[]``` and ```jsonb[]```.
 
 
 Requirements:
@@ -140,20 +140,22 @@ Entity.tags.taggings
   => [#<PgTagsOn::Tag name: "alpha", entity_id: 1>, #<PgTagsOn::Tag name: "beta", entity_id: 1>, #<PgTagsOn::Tag name: "alpha", entity_id: 2>, ... ]
 ```
 
-Create, update and delete methods are using, for performance reasons, Postgresql functions to manipulate the arrays, so ActiveRecord models are not instantiated. A frequent problem is to ensure uniqueness of the tags for a record, but this can be achieved at the database level by creating a before create/update row trigger.
+Create, update and delete methods are using, for performance reasons, Postgresql functions to manipulate the arrays, so ActiveRecord models are not instantiated. A frequent problem is to ensure uniqueness of the tags for a record, and this can be achieved at the database level by creating a before create/update row trigger.
 
 ```ruby
 # create
-Entity.tags.create('alpha')             # add tag to all records
-Entity.where(...).tags.create('alpha')  # add tag to filtered records
+Entity.tags.create('alpha')              # add tag to all records
+Entity.tags.create(%w[alpha beta gamma]) # add many tags to all records
+Entity.where(...).tags.create('alpha')   # add tag to filtered records
 
 # update
 Entity.tags.update('alpha', 'a')             # rename tag for all records
 Entity.where(...).tags.update('alpha', 'a')  # rename tag for filtered records
 
 # delete
-Entity.tags.delete('alpha')             # delete tag from all records
-Entity.where(...).tags.delete('alpha')  # delete tag from filtered records
+Entity.tags.delete('alpha')              # delete tag from all records
+Entity.tags.delete(%w[alpha beta gamma]) # delete many tags from all records
+Entity.where(...).tags.delete('alpha')   # delete tag from filtered records
 
 # any of these methods accepts :returning option
 Entity.tags.update('alpha', 'a', returning: %w[id tags])

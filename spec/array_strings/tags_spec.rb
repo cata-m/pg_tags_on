@@ -12,8 +12,8 @@ RSpec.describe 'ArrayStrings::Tags' do
   it 'find all tags' do
     tags = relation.all.order('name')
 
-    expect(tags.size).to be_eql(4)
-    expect(tags.map(&:name)).to be_eql(%w[a b c d])
+    expect(tags.size).to be_eql(7)
+    expect(tags.map(&:name)).to be_eql(%w[a b c d e e1 e2])
   end
 
   it 'find all tags for filtered records' do
@@ -30,7 +30,7 @@ RSpec.describe 'ArrayStrings::Tags' do
   end
 
   it 'count tags' do
-    expect(relation.count).to be_eql(4)
+    expect(relation.count).to be_eql(7)
   end
 
   it 'count tags for filtered records' do

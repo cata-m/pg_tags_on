@@ -24,6 +24,7 @@ module DatabaseHelpers
         t.string  :attr
       end
       @connection.add_index :entities, :tags_str, using: 'gin'
+      @connection.execute 'CREATE INDEX idx_entities_tags_jsonb ON entities USING GIN(tags_jsonb);'
     end
   end
 

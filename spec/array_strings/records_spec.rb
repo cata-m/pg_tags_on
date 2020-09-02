@@ -20,7 +20,7 @@ RSpec.describe 'ArrayStrings::Records' do
     rel = Entity.where.not(column => Tags.one('b'))
 
     expect(rel.to_sql).to include(%(NOT (#{ref} @> '{b}')))
-    expect(rel.count).to be_eql(1)
+    expect(rel.count).to be_eql(2)
   end
 
   it 'find records with exact same tags' do
@@ -40,7 +40,7 @@ RSpec.describe 'ArrayStrings::Records' do
     rel = Entity.where.not(column => Tags.all(%w[a b]))
 
     expect(rel.to_sql).to include(%(NOT (#{ref} @> '{a,b}')))
-    expect(rel.count).to be_eql(2)
+    expect(rel.count).to be_eql(3)
   end
 
   it 'find records with any tag' do

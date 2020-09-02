@@ -12,8 +12,8 @@ RSpec.describe 'ArrayIntegers::Taggings' do
   it 'find all taggings' do
     taggings = relation.taggings.order('name')
 
-    expect(taggings.size).to be_eql(6)
-    expect(taggings.map(&:name)).to be_eql([1, 2, 2, 3, 3, 4])
+    expect(taggings.size).to be_eql(9)
+    expect(taggings.map(&:name)).to be_eql([1, 2, 2, 3, 3, 4, 5, 55, 555])
   end
 
   it 'find all taggings for filtered records' do

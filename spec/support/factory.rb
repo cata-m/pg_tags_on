@@ -3,17 +3,19 @@
 class Factory
   def self.array_strings
     Entity.insert_all([
-                        { tags_str: %w[a b c], attr: 'test1' },
-                        { tags_str: %w[b c],   attr: 'test2' },
-                        { tags_str: ['d'],     attr: 'test3' }
+                        { tags_str: %w[a b c],    attr: 'test1' },
+                        { tags_str: %w[b c],      attr: 'test2' },
+                        { tags_str: ['d'],        attr: 'test3' },
+                        { tags_str: %w[e e1 e2],  attr: 'test3' }
                       ])
   end
 
   def self.array_integers
     Entity.insert_all([
-                        { tags_int: [1, 2, 3], attr: 'test1' },
-                        { tags_int: [2, 3],    attr: 'test2' },
-                        { tags_int: [4],       attr: 'test3' }
+                        { tags_int: [1, 2, 3],    attr: 'test1' },
+                        { tags_int: [2, 3],       attr: 'test2' },
+                        { tags_int: [4],          attr: 'test3' },
+                        { tags_int: [5, 55, 555], attr: 'test4' }
                       ])
   end
 
@@ -27,7 +29,11 @@ class Factory
                                        { name: 'c' }],
                           attr: 'test2' },
                         { tags_jsonb: [{ name: 'd' }],
-                          attr: 'test3' }
+                          attr: 'test3' },
+                        { tags_jsonb: [{ name: 'e1' },
+                                       { name: 'e2'}
+                                      ],
+                          attr: 'test4'}
                       ])
   end
 

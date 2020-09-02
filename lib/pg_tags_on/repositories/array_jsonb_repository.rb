@@ -4,43 +4,56 @@ module PgTagsOn
   module Repositories
     # Operatons for 'jsonb[]' column type
     class ArrayJsonbRepository < ArrayRepository
-      def create(tag, returning: nil)
-        with_normalized_tags(tag) do |n_tag|
-          super(n_tag, returning: returning)
-        end
+      def create(tag_or_tags, returning: nil)
+        tags = normalize_tags(Array.wrap(tag_or_tags))
+
+        super(tags, returning: returning)
       end
 
       def update(tag, new_tag, returning: nil)
-        with_normalized_tags(tag, new_tag) do |n_tag, n_new_tag|
-          sql_set = <<-SQL.strip
-            #{column_name}[index] = #{column_name}[index] || $2
-          SQL
+        n_tag, n_new_tag = normalize_tags([tag, new_tag])
 
-          update_tag(n_tag,
-                     sql_set,
-                     bindings: [query_attribute(n_new_tag.to_json)],
-                     returning: returning)
-        end
+        sql_set = <<-SQL.strip
+          #{column_name}[index] = #{column_name}[index] || $2
+        SQL
+
+        update_tag(n_tag,
+                   sql_set,
+                   bindings: [query_attribute(n_new_tag.to_json)],
+                   returning: returning)
       end
 
-      def delete(tag, returning: nil)
-        with_normalized_tags(tag) do |n_tag|
-          sql_set = <<-SQL.strip
-            #{column_name} = #{column_name}[1:index-1] || #{column_name}[index+1:2147483647]
-          SQL
-
-          update_tag(n_tag, sql_set, returning: returning)
+      def delete(tag_or_tags, returning: nil)
+        tags = Array.wrap(tag_or_tags)
+        normalized_tags = normalize_tags(tags)
+        rel = klass.where(column_name => PgTagsOn.query_class.any(tags))
+        sm = build_tags_select_manager
+        normalized_tags.each do |tag|
+          sm.where(arel_infix_operation('@>', Arel.sql('tag'), bind_for(tag.to_json, nil)).not)
         end
+        value = arel_function('array', sm)
+
+        perform_update(rel, { column_name => value }, returning: returning)
       end
 
       private
 
-      def with_normalized_tags(*tags, &block)
-        normalized_tags = Array.wrap(tags).flatten.map do |tag|
-          key? && Array.wrap(key).reverse.inject(tag) { |a, n| { n => a } } || tag
-        end
+      # Returns SelectManager for unnested tags.
+      # sql: select tag from ( select unnest(tags_jsonb) as tag ) as _tags
+      def build_tags_select_manager
+        Arel::SelectManager.new
+                           .project('tag')
+                           .from(Arel::SelectManager.new
+                  .project(unnest.as('tag'))
+                  .as('_tags'))
+      end
 
-        block.call(*normalized_tags)
+      def normalize_tags(tags)
+        return tags unless key?
+
+        tags.map do |tag|
+          Array.wrap(key).reverse.inject(tag) { |a, n| { n => a } }
+        end
       end
 
       def array_to_recordset
@@ -82,6 +95,7 @@ module PgTagsOn
           FROM records
           WHERE #{table_name}.id = records.id
         SQL
+
         sql += " RETURNING #{Array.wrap(returning).join(', ')}" if returning.present?
 
         bindings = [query_attribute(tag.to_json)] + Array.wrap(bindings)

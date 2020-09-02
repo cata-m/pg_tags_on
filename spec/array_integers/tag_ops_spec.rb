@@ -21,6 +21,15 @@ RSpec.describe 'ArrayIntegers::TagOps' do
       end
     end
 
+    it 'create multiple tags once' do
+      relation.create([100, 101])
+
+      Entity.all.each do |entity|
+        expect(entity.send(column)).to include(100)
+        expect(entity.send(column)).to include(101)
+      end
+    end
+
     it 'create tag for filtered records' do
       Entity.where(attr: 'test2').send(column).create(6)
 
@@ -32,7 +41,7 @@ RSpec.describe 'ArrayIntegers::TagOps' do
       result = relation.create(100, returning: 'tags_int')
 
       expect(result).to be_a(Array)
-      expect(result.size).to be_eql(3)
+      expect(result.size).to be_eql(4)
     end
   end
 
@@ -65,6 +74,14 @@ RSpec.describe 'ArrayIntegers::TagOps' do
 
       tags = relation.all.pluck(:name)
       expect(tags).not_to include(2)
+    end
+
+    it 'delete multiple tags once' do
+      relation.delete([5, 55])
+
+      tags = relation.all.pluck(:name)
+      expect(tags).not_to include(5)
+      expect(tags).not_to include(55)
     end
 
     it 'delete tag for filtered records' do
