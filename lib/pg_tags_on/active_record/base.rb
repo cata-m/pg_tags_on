@@ -12,7 +12,7 @@ module PgTagsOn
 
           pg_tags_on_init_model unless @pg_tags_on_init_model
           pg_tags_on_settings[name] = options.deep_symbolize_keys
-          validates(name, 'pg_tags_on/tags': true) if %i[limit tag_length].any? { |k| options[k] }
+          validates(name, 'pg_tags_on/tags': true) if %i[limit length].any? { |k| options[k] }
           instance_eval <<-RUBY, __FILE__, __LINE__ + 1
             scope :#{name}, -> { PgTagsOn::Repository.new(self, "#{name}") }
           RUBY

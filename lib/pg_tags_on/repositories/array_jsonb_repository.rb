@@ -5,7 +5,7 @@ module PgTagsOn
     # Operatons for 'jsonb[]' column type
     class ArrayJsonbRepository < ArrayRepository
       def create(tag_or_tags, returning: nil)
-        tags = normalize_tags(Array.wrap(tag_or_tags))
+        tags = normalize_tags(tag_or_tags)
 
         super(tags, returning: returning)
       end
@@ -24,13 +24,14 @@ module PgTagsOn
       end
 
       def delete(tag_or_tags, returning: nil)
-        tags = Array.wrap(tag_or_tags)
-        normalized_tags = normalize_tags(tags)
-        rel = klass.where(column_name => PgTagsOn.query_class.any(tags))
+        tags = normalize_tags(tag_or_tags)
         sm = build_tags_select_manager
-        normalized_tags.each do |tag|
+
+        tags.each do |tag|
           sm.where(arel_infix_operation('@>', Arel.sql('tag'), bind_for(tag.to_json, nil)).not)
         end
+
+        rel = klass.where(column_name => PgTagsOn.query_class.any(tag_or_tags))
         value = arel_function('array', sm)
 
         perform_update(rel, { column_name => value }, returning: returning)
@@ -48,7 +49,9 @@ module PgTagsOn
                   .as('_tags'))
       end
 
-      def normalize_tags(tags)
+      def normalize_tags(tag_or_tags)
+        tags = Array.wrap(tag_or_tags)
+
         return tags unless key?
 
         tags.map do |tag|

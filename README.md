@@ -42,7 +42,7 @@ Or install it yourself as:
 ## Usage
 ### ActiveRecord model setup
 
-One or multiple columns can be specified:
+One or multiple columns that store tags can be specified:
 
 ```ruby
 class Entity < ActiveRecord::Base
@@ -51,7 +51,7 @@ class Entity < ActiveRecord::Base
 end
 ```
 
-For ```jsonb[]``` columns you'll have to specify the key for the tag value. If you store multiple attributes in the objects then you must set also ```has_attributes: true```.
+In ```jsonb[]``` columns, by default each tag is stored as an object with a single key. For example ```{"tag": "rubygems"}```. If you store multiple attributes in the objects, then you must set also ```has_attributes: true```.
 
 ```ruby
 class Entity < ActiveRecord::Base
@@ -65,7 +65,7 @@ Maximum number of tags and maximum tag length can be validated. Errors will be i
 
 ```ruby
 class Entity < ActiveRecord::Base
-  pg_tags_on :tags, limit: 10, tag_length: 50 # limit to 10 tags and 50 chars. per tag.
+  pg_tags_on :tags, limit: 10, length: 50 # limit to 10 tags and 50 chars. per tag.
 end
 ```
 

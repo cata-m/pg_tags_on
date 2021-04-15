@@ -2,8 +2,8 @@
 
 RSpec.describe 'Validator' do
   before(:all) do
-    Entity.pg_tags_on :tags_str, limit: 2, tag_length: 3
-    Entity.pg_tags_on :tags_jsonb, key: :name, limit: 2, tag_length: 3
+    Entity.pg_tags_on :tags_str, limit: 2, length: 3
+    Entity.pg_tags_on :tags_jsonb, key: :name, limit: 2, length: 3
   end
 
   context 'string tags' do

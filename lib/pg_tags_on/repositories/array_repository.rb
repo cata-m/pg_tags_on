@@ -42,8 +42,8 @@ module PgTagsOn
         all.count
       end
 
-      def create(tag, returning: nil)
-        value = arel_array_cat(arel_column, bind_for(Array.wrap(tag)))
+      def create(tag_or_tags, returning: nil)
+        value = arel_array_cat(arel_column, bind_for(Array.wrap(tag_or_tags)))
 
         perform_update(klass, { column_name => value }, returning: returning)
       end

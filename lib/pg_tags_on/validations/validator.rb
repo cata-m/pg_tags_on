@@ -4,7 +4,7 @@ module PgTagsOn
   # Validator for max. number of tags and max. tag length.
   #
   #   class Entity
-  #     pg_tags_on :tags, limit: 20, tag_length: 64
+  #     pg_tags_on :tags, limit: 20, length: 64
   #   end
   #
   class TagsValidator < ActiveModel::EachValidator
@@ -15,7 +15,7 @@ module PgTagsOn
 
     def validate_each(record, attribute, value)
       validate_limit(record, attribute, value)
-      validate_tag_length(record, attribute, value)
+      validate_length(record, attribute, value)
 
       record.errors.present?
     end
@@ -31,8 +31,8 @@ module PgTagsOn
       record.errors.add(attr, "size exceeded #{limit} tags") if value.size > limit.to_i
     end
 
-    def validate_tag_length(record, attr, value)
-      limit, key = klass.pg_tags_on_options_for(attr).values_at(:tag_length, :key)
+    def validate_length(record, attr, value)
+      limit, key = klass.pg_tags_on_options_for(attr).values_at(:length, :key)
       return true unless limit && value
 
       value.map! { |tag| tag.with_indifferent_access.dig(*key) } if key
