@@ -65,7 +65,7 @@ module PgTagsOn
 
         stmt = ::Arel::UpdateManager.new
         stmt.table(arel_table)
-        stmt.key = klass.arel_attribute(klass.primary_key)
+        stmt.key = arel_table[klass.primary_key]
         stmt.take(rel.arel.limit)
         stmt.offset(rel.arel.offset)
         stmt.order(*rel.arel.orders)
