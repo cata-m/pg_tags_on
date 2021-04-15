@@ -1,3 +1,9 @@
+## 0.3.0 ( 2020-04-15)
+
+  * apply PR for gem versions
+  * fixed Arel deprecation warning
+  * changed validation param names
+
 ## 0.2.0 ( 2020-09-02)
 
 * Added support for multiple tags creation and deletion
