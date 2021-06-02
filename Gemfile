@@ -7,5 +7,5 @@ gemspec
 
 gem 'faker', '~> 2.10'
 gem 'pry', '~> 0.12'
-gem 'rubocop', '~> 0.80'
+gem 'rubocop', '~> 1.16'
 gem 'simplecov', '~> 0.18'
