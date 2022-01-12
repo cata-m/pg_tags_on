@@ -158,7 +158,7 @@ Entity.tags.delete(%w[alpha beta gamma]) # delete many tags from all records
 Entity.where(...).tags.delete('alpha')   # delete tag from filtered records
 
 # any of these methods accepts :returning option
-Entity.tags.update('alpha', 'a', returning: %w[id tags])
+Entity.tags.update('alpha', 'a', returning: "id,tags")
 => [[1, '{a}'], ...]
 ```
 
