@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.0] - 2022-01-12
+- Add support for activerecord 7
+- Refactoring
+
 ## [0.4.0] - 2020-06-02
 - bump gems versions
 - ISSUE_TEMPLATE.md
