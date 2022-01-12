@@ -16,11 +16,11 @@ namespace :pg_tags_on do
     Entity.pg_tags_on :tags_jsonb, key: :name
 
     puts 'How many records to generate? (default 10_000)'
-    records = STDIN.gets.chomp.to_i
+    records = $stdin.gets.chomp.to_i
     puts 'Minimum tags per record (default 1):'
-    min_tags = STDIN.gets.chomp.to_i
+    min_tags = $stdin.gets.chomp.to_i
     puts 'Maximum tags per record (default 10):'
-    max_tags = STDIN.gets.chomp.to_i
+    max_tags = $stdin.gets.chomp.to_i
 
     records = 10_000 if records.zero?
     min_tags = 1 if min_tags.zero?

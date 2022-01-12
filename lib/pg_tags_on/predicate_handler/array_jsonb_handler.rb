@@ -7,7 +7,7 @@ module PgTagsOn
       # Transforms value in Hash if :key option is set
       def value
         @value ||= begin
-          return query_value unless key?
+          return query_value unless nested?
 
           query_value.each.map do |val|
             key.reverse.inject(val) { |a, n| { n => a } }
@@ -23,7 +23,7 @@ module PgTagsOn
         @key ||= Array.wrap(settings[:key])
       end
 
-      def key?
+      def nested?
         key.present?
       end
     end

@@ -18,7 +18,13 @@ require 'pg_tags_on/validations/validator'
 require 'pg_tags_on/repository'
 require 'pg_tags_on/repositories/base_repository'
 require 'pg_tags_on/repositories/array_repository'
+require 'pg_tags_on/repositories/array_value/create'
+require 'pg_tags_on/repositories/array_value/update'
+require 'pg_tags_on/repositories/array_value/delete'
 require 'pg_tags_on/repositories/array_jsonb_repository'
+require 'pg_tags_on/repositories/array_jsonb/create'
+require 'pg_tags_on/repositories/array_jsonb/update'
+require 'pg_tags_on/repositories/array_jsonb/delete'
 require 'pg_tags_on/benchmark/benchmark'
 
 # PgTagsOn configuration methods

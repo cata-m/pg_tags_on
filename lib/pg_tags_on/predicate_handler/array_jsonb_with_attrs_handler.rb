@@ -13,11 +13,9 @@ module PgTagsOn
       }.freeze
 
       def left
-        node = arel_function('array_to_json', attribute)
-        node = arel_cast(node, 'jsonb')
-        node = arel_function('jsonb_path_query_array', node, arel_build_quoted("$[*].#{key.join('.')}"))
-
-        node
+        arel_function 'jsonb_path_query_array',
+                      arel_cast(arel_function('array_to_json', attribute), 'jsonb'),
+                      arel_build_quoted("$[*].#{key.join('.')}")
       end
 
       def right

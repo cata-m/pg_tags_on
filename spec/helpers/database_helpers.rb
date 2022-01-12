@@ -39,7 +39,7 @@ module DatabaseHelpers
     when Hash
       ActiveSupport::JSON.encode(json.to_json)
     when Array
-      "'{" + json.map { |item| encode_json(item) }.join(',') + "}'"
+      "'{#{json.map { |item| encode_json(item) }.join(',')}}'"
     end
   end
 

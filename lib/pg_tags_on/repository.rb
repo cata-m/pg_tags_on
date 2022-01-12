@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module PgTagsOn
+  ##
   # Repository class for tags.
+  #
   # Examples:
   #
   #   repo = PgTagsOn::Repository.new(Entity, :tags)

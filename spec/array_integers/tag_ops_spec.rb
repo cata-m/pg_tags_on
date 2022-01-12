@@ -61,7 +61,7 @@ RSpec.describe 'ArrayIntegers::TagOps' do
     end
 
     it 'update tag with returning values' do
-      result = relation.update(1, 11, returning: %w[id tags_int])
+      result = relation.update(1, 11, returning: 'id, tags_int')
 
       expect(result).to be_a(Array)
       expect(result[0]).to include('{11,2,3}')
@@ -92,7 +92,7 @@ RSpec.describe 'ArrayIntegers::TagOps' do
     end
 
     it 'delete tag with returning values' do
-      result = relation.delete(1, returning: %w[id tags_int])
+      result = relation.delete(1, returning: 'id, tags_int')
 
       expect(result).to be_a(Array)
       expect(result[0]).to include('{2,3}')

@@ -4,112 +4,163 @@ module PgTagsOn
   module Repositories
     # This repository works with "character varying[]" and "integer[]" column types
     class ArrayRepository < BaseRepository
+      ##
+      # Select all tags ordered by name
+      #
+      # @return [Array[PgTagsOn::Tag]] Tags list.
+      #
+      # @example
+      #   Entity.tags.all
+      #
       def all
-        subquery = klass
-                   .select(arel_distinct(array_to_recordset).as('name'))
-                   .arel
-                   .as('tags')
-
         PgTagsOn::Tag
           .select(Arel.star)
-          .from(subquery)
-          .order('tags.name') # override rails' default order by id
+          .from(select_tags.as('tags'))
+          .order(tag_alias)
       end
 
+      ##
+      # Select all tags with counts
+      #
+      # @return [Array[PgTagsOn::Tag]] Tags list.
+      #
+      # @example
+      #   Entity.tags.all_with_counts
+      #
       def all_with_counts
         taggings
-          .except(:select)
-          .select('name, count(name) as count')
-          .group('name')
+          .reselect("#{tag_alias}, count(*) as count")
+          .group(tag_alias)
       end
 
+      ##
+      # Find one tag.
+      #
+      # @return [PgTagsOn::Tag]
+      #
       def find(tag)
         all.where(name: tag).first
       end
 
+      ##
+      # Returns true if tag exists.
+      #
+      # @return [Boolean]
+      #
       def exists?(tag)
-        all.exists?(tag)
+        all.exists? tag
       end
 
+      ##
+      # Select taggings.
+      #
+      # @return [[PgTagsOn::Tag<entity_id, name>]]
+      #
       def taggings
         PgTagsOn::Tag
           .select(Arel.star)
-          .from(taggings_query)
-          .order('taggings.name')
+          .from(select_taggings.as('taggings'))
+          .order(tag_alias)
       end
 
+      ##
+      # Get tags count.
+      #
       def count
         all.count
       end
 
+      ##
+      # Add tag(s) to records.
+      #
+      # @param tag_or_tags [String|Array] Tags to be added.
+      # @param returning   [String]         Model's columns that'll be returned.
+      #
+      # @return [Array|Boolean] Returns boolean if :returning argument is nil
+      #
+      # @example
+      #   Entity.tags.create "lorem", returning: "id,name"
+      #     => [[1, 'row1'], [2, 'row2']]
+      #
       def create(tag_or_tags, returning: nil)
-        value = arel_array_cat(arel_column, bind_for(Array.wrap(tag_or_tags)))
-
-        perform_update(klass, { column_name => value }, returning: returning)
+        ArrayValue::Create.new.call repository: self,
+                                    relation: klass,
+                                    tags: tag_or_tags,
+                                    returning: returning
       end
 
+      ##
+      # Rename tag(s).
+      #
+      # @param tag       [String] Tag that'll be renamed.
+      # @param new_tag   [String] New tag name.
+      # @param returning [String] Model's columns that'll be returned.
+      #
+      # @return [Array|Boolean] Returns boolean if :returning argument is nil
+      #
+      # @example
+      #   Entity.tags.update "lorem", "ipsum", returning: "id,name"
+      #     => [[1, 'row1'], [2, 'row2']]
+      #
       def update(tag, new_tag, returning: nil)
-        rel = klass.where(column_name => PgTagsOn.query_class.one(tag))
-        value = arel_array_replace(arel_column, bind_for(tag), bind_for(new_tag))
+        relation = klass.where(column_name => PgTagsOn.query_class.one(tag))
 
-        perform_update(rel, { column_name => value }, returning: returning)
+        ArrayValue::Update.new.call repository: self,
+                                    relation: relation,
+                                    tag: tag,
+                                    new_tag: new_tag,
+                                    returning: returning
       end
 
+      ##
+      # Delete tag(s).
+      #
+      # @param tag_or_tags [String] Tag that'll be renamed.
+      # @param returning   [String] Model's columns that'll be returned.
+      #
+      # @return [Array|Boolean] Returns boolean if :returning argument is nil
+      #
+      # @example
+      #   Entity.tags.delete "lorem", returning: "id,name"
+      #     => [[1, 'row1'], [2, 'row2']]
+      #
       def delete(tag_or_tags, returning: nil)
-        tags = Array.wrap(tag_or_tags)
-        rel = klass.where(column_name => PgTagsOn.query_class.any(tags))
-        sm = Arel::SelectManager.new
-                                .project(unnest)
-                                .except(
-                                  Arel::SelectManager.new
-                                    .project(arel_unnest(arel_cast(bind_for(tags), native_column_type)))
-                                )
-        value = arel_function('array', sm)
+        relation = klass.where(column_name => PgTagsOn.query_class.any(tag_or_tags))
 
-        perform_update(rel, { column_name => value }, returning: returning)
+        ArrayValue::Delete.new.call repository: self,
+                                    relation: relation,
+                                    tags: tag_or_tags,
+                                    returning: returning
       end
 
-      private
-
-      def perform_update(rel, updates, returning: nil)
-        update_manager = get_update_manager(rel, updates)
-        sql, binds = klass.connection.send :to_sql_and_binds, update_manager
-        sql += " RETURNING #{Array.wrap(returning).join(', ')}" if returning.present?
-
-        result = klass.connection.exec_query(sql, 'SQL', binds).rows
-
-        returning ? result : true
+      def tag_alias
+        'name'
       end
 
-      def taggings_query
+      # protected
+
+      ##
+      # @return [Arel::SelectManager]
+      #
+      def select_tags
         klass
-          .select(
-            array_to_recordset.as('name'),
-            arel_table['id'].as('entity_id')
-          )
+          .select(arel_distinct(arel_unnest(arel_column)).as(tag_alias))
           .arel
-          .as('taggings')
       end
 
-      def unnest
-        arel_unnest(arel_column)
-      end
-
-      def array_to_recordset
-        unnest
-      end
-
-      def unnest_with_ordinality(alias_table: 't')
-        "#{unnest.to_sql} WITH ORDINALITY #{alias_table}(name, index)"
-      end
-
-      def query_attribute(value)
-        arel_query_attribute(arel_column, value, cast_type)
+      ##
+      # @return [Arel::SelectManager]
+      #
+      def select_taggings
+        klass
+          .select(arel_unnest(arel_column).as(tag_alias),
+                  arel_table['id'].as('entity_id'))
+          .arel
       end
 
       def bind_for(value, attr = arel_column)
-        query_attr = arel_query_attribute(attr, value, cast_type)
-        arel_bind(query_attr)
+        query_attr = arel_query_attribute attr, value, cast_type
+        arel_bind query_attr
       end
     end
   end

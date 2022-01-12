@@ -2,7 +2,7 @@
 
 module PgTagsOn
   # Models' predicate handlers register this class
-  class PredicateHandler < ::ActiveRecord::PredicateBuilder::BaseHandler
+  class PredicateHandler < ::ActiveRecord::PredicateBuilder::BasicObjectHandler
     def call(attribute, query)
       handler = Builder.new(attribute, query, predicate_builder).call
 
@@ -21,7 +21,7 @@ module PgTagsOn
         if column.array?
           array_handler
         else
-          BaseHandler.new(attribute, query, predicate_builder)
+          BasicObjectHandler.new attribute, query, predicate_builder
         end
       end
 

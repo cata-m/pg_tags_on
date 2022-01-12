@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module PgTagsOn
+  ##
   # Helper class to construct queries.
   # This class is registered in models' predicate builders.
   # See configuration in order to create an alias for it.
@@ -14,9 +15,7 @@ module PgTagsOn
       RUBY
     end
 
-    attr_reader :value
-    attr_reader :predicate
-    attr_reader :options
+    attr_reader :value, :predicate, :options
 
     def initialize(value, predicate, options = {})
       @value = value

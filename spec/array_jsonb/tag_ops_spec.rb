@@ -11,14 +11,15 @@ RSpec.describe 'ArrayJsonb::TagOps' do
     end
 
     let(:column) { :tags_jsonb }
+    let(:tag_alias) { 'name' }
     let(:relation) { Entity.send(column) }
 
     context 'create' do
       it 'create tag' do
-        relation.create('new-tag1')
+        relation.create('new-tag1', returning: 'id,attr')
 
         Entity.all.each do |entity|
-          expect(entity.send(column)).to include({ 'name' => 'new-tag1' })
+          expect(entity.send(column)).to include({ tag_alias => 'new-tag1' })
         end
       end
 
@@ -88,8 +89,8 @@ RSpec.describe 'ArrayJsonb::TagOps' do
       it 'delete tag for filtered records' do
         Entity.where(attr: 'test2').send(column).delete('c')
 
-        expect(Entity.where(attr: 'test1').send(column).all.pluck(:name)).to include('c')
-        expect(Entity.where(attr: 'test2').send(column).all.pluck(:name)).not_to include('c')
+        expect(Entity.where(attr: 'test1').send(column).all.pluck(tag_alias)).to include('c')
+        expect(Entity.where(attr: 'test2').send(column).all.pluck(tag_alias)).not_to include('c')
       end
 
       it 'delete tag with returning values' do

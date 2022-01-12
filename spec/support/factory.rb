@@ -31,9 +31,8 @@ class Factory
                         { tags_jsonb: [{ name: 'd' }],
                           attr: 'test3' },
                         { tags_jsonb: [{ name: 'e1' },
-                                       { name: 'e2'}
-                                      ],
-                          attr: 'test4'}
+                                       { name: 'e2' }],
+                          attr: 'test4' }
                       ])
   end
 
